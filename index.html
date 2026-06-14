@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Tracker / מעקב קבצים</title>
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --surface2: #f4f6fb;
+    --border: #e2e5ef;
+    --text: #1a1a2e;
+    --text2: #666;
+    --text3: #bbb;
+    --accent: #4f46e5;
+    --accent-h: #4338ca;
+    --green: #059669;
+    --green-h: #047857;
+    --shadow: 0 2px 10px rgba(0,0,0,0.07);
+    --ready-bg:#d1fae5;--ready-c:#065f46;--ready-b:#6ee7b7;
+    --work-bg:#fef3c7;--work-c:#92400e;--work-b:#fcd34d;
+    --lost-bg:#fee2e2;--lost-c:#991b1b;--lost-b:#fca5a5;
+  }
+  .dark {
+    --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3248;
+    --text:#e8eaf6;--text2:#9ea3c0;--text3:#444a6a;--shadow:0 2px 10px rgba(0,0,0,0.4);
+    --ready-bg:#064e3b;--ready-c:#6ee7b7;--ready-b:#065f46;
+    --work-bg:#451a03;--work-c:#fcd34d;--work-b:#92400e;
+    --lost-bg:#450a0a;--lost-c:#fca5a5;--lost-b:#991b1b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .2s,color .2s}
+
+  /* TOP BAR */
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 18px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20}
+  .topbar h1{font-size:1rem;flex:1;white-space:nowrap}
+  .tbtn{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.82rem;color:var(--text);transition:background .15s;white-space:nowrap}
+  .tbtn:hover{background:var(--border)}
+
+  /* LAYOUT */
+  .layout{display:flex;flex:1;min-height:0;height:calc(100vh - 49px)}
+
+  /* SIDEBAR */
+  .sidebar{width:220px;background:var(--surface);border-inline-end:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+  .sb-head{padding:12px 12px 6px;font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+  .sb-new{padding:0 8px 8px;display:flex;gap:6px;align-items:center}
+  .sb-new input{flex:1;padding:7px 9px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:0.83rem;outline:none;font-family:inherit}
+  .sb-new input:focus{border-color:var(--accent)}
+  .sb-add{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 11px;cursor:pointer;font-size:1rem;line-height:1;flex-shrink:0}
+  .sb-add:hover{background:var(--accent-h)}
+  .sb-list{overflow-y:auto;flex:1;padding:0 6px 12px}
+  .sb-item{display:flex;align-items:center;gap:5px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:0.87rem;color:var(--text);transition:background .15s;margin-bottom:2px}
+  .sb-item:hover{background:var(--surface2)}
+  .sb-item.active{background:var(--accent);color:#fff}
+  .sb-item .sb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sb-del{background:none;border:none;color:inherit;opacity:.45;cursor:pointer;padding:2px 5px;border-radius:4px;font-size:.8rem;flex-shrink:0}
+  .sb-del:hover{opacity:1;background:rgba(239,68,68,.2)}
+
+  /* MAIN */
+  .main{flex:1;overflow-y:auto;padding:22px 18px}
+  .main-inner{max-width:660px;margin:0 auto}
+  .no-list{text-align:center;color:var(--text3);margin-top:80px;font-size:.95rem;line-height:2.2}
+
+  /* CARD */
+  .card{background:var(--surface);border-radius:12px;padding:18px 18px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .card-head{font-size:.85rem;color:var(--text2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+
+  /* DATE HEADER */
+  .date-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .date-header h2{font-size:1.2rem;flex:1}
+  .date-edit{padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit;outline:none}
+  .date-edit:focus{border-color:var(--accent)}
+
+  /* TIME RANGE SECTION */
+  .tr-section{background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+  .tr-header{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .tr-label{font-size:.82rem;color:var(--text2);white-space:nowrap}
+  .tr-time{padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);font-size:.88rem;font-family:inherit;width:100px;outline:none}
+  .tr-time:focus{border-color:var(--accent)}
+  .tr-sep{color:var(--text3);font-size:.9rem}
+  .tr-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 7px;border-radius:6px;font-size:.85rem;margin-inline-start:auto}
+  .tr-del:hover{color:#ef4444;background:var(--lost-bg)}
+  .tr-body{padding:12px 14px}
+
+  /* ADD ID ROW */
+  .add-row{display:flex;gap:8px;margin-bottom:10px}
+  .add-row input{flex:1;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit;outline:none}
+  .add-row input:focus{border-color:var(--accent)}
+  .btn-add{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:.85rem;white-space:nowrap}
+  .btn-add:hover{background:var(--accent-h)}
+
+  /* ID LIST */
+  .id-list{display:flex;flex-direction:column;gap:7px}
+  .id-item{display:flex;align-items:center;gap:7px;background:var(--surface2);border-radius:9px;padding:8px 11px;flex-wrap:wrap;border:1px solid var(--border)}
+  .id-name{font-weight:600;font-size:.9rem;flex:1;min-width:60px}
+  .status-btns{display:flex;gap:5px;flex-wrap:wrap}
+  .sbtn{padding:4px 10px;border-radius:20px;font-size:.74rem;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .12s}
+  .sbtn:hover{opacity:.8}
+  .sbtn.sr{background:var(--ready-bg);color:var(--ready-c);border-color:var(--ready-b)}
+  .sbtn.sw{background:var(--work-bg);color:var(--work-c);border-color:var(--work-b)}
+  .sbtn.sl{background:var(--lost-bg);color:var(--lost-c);border-color:var(--lost-b)}
+  .id-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:3px 6px;border-radius:5px;font-size:.9rem}
+  .id-del:hover{color:#ef4444;background:var(--lost-bg)}
+
+  /* STATS */
+  .stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .chip{font-size:.74rem;padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2)}
+  .empty-msg{text-align:center;color:var(--text3);font-size:.85rem;padding:14px 0}
+
+  /* ACTIONS ROW */
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .btn-add-tr{background:var(--surface);border:1.5px dashed var(--border);color:var(--text2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:.87rem;flex:1;transition:all .15s}
+  .btn-add-tr:hover{border-color:var(--accent);color:var(--accent);background:var(--surface2)}
+  .btn-export{background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px 20px;cursor:pointer;font-size:.87rem;white-space:nowrap}
+  .btn-export:hover{background:var(--green-h)}
+
+  /* EXPORT OUTPUT */
+  .export-out{display:none;margin-top:12px}
+  .export-out textarea{width:100%;min-height:160px;border:1.5px solid var(--border);border-radius:8px;padding:11px;font-size:.88rem;font-family:inherit;direction:rtl;resize:vertical;outline:none;background:var(--surface2);color:var(--text)}
+  .btn-copy{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px;cursor:pointer;font-size:.85rem;width:100%;margin-top:7px}
+  .btn-copy:hover{background:var(--accent-h)}
+  .copied{display:none;text-align:center;color:var(--green);font-size:.8rem;margin-top:5px}
+
+  @media(max-width:580px){.sidebar{width:170px}.main{padding:14px 10px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📋 <span id="app-title">File Tracker</span></h1>
+  <div style="display:flex;gap:7px">
+    <button class="tbtn" onclick="toggleLang()" id="lang-btn">🌐 HE</button>
+    <button class="tbtn" onclick="toggleDark()" id="dark-btn">🌙</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sb-head" id="lbl-lists">LISTS</div>
+    <div class="sb-new">
+      <input type="date" id="new-list-date" />
+      <button class="sb-add" id="btn-create-list" title="Create list">＋</button>
+    </div>
+    <div class="sb-list" id="sb-list"></div>
+  </div>
+
+  <div class="main">
+    <div class="main-inner">
+      <div class="no-list" id="no-list-msg">
+        <div style="font-size:2.5rem">📂</div>
+        <span id="lbl-no-list">Pick a date and press + to create a list</span>
+      </div>
+
+      <div id="list-editor" style="display:none">
+        <!-- Date header -->
+        <div class="date-header">
+          <h2 id="list-date-display"></h2>
+        </div>
+
+        <!-- Time range sections rendered here -->
+        <div id="tr-container"></div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button class="btn-add-tr" onclick="addTimeRange()" id="btn-add-tr">＋ Add Time Range</button>
+          <button class="btn-export" onclick="exportMessage()" id="btn-export">📤 Export</button>
+        </div>
+
+        <!-- Export output -->
+        <div class="export-out" id="export-out">
+          <textarea id="export-text" readonly></textarea>
+          <button class="btn-copy" onclick="copyExport()" id="btn-copy">📋 Copy Message</button>
+          <div class="copied" id="copied-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let S = {
+  lang: 'en',
+  dark: false,
+  active: null,
+  lists: {}
+  // lists[id] = { date:"YYYY-MM-DD", timeRanges:[{id,start,end,items:[{id,status}]}] }
+};
+
+// ── I18N ──────────────────────────────────────────────────────────────────────
+const L = {
+  en:{
+    appTitle:'File Tracker',lists:'LISTS',noList:'Pick a date and press + to create a list',
+    addTr:'＋ Add Time Range',export:'📤 Export',copy:'📋 Copy Message',copied:'✅ Copied!',
+    from:'From',to:'To',addId:'Add ID',idPlaceholder:'Enter ID...',
+    empty:'No IDs yet',ready:'✅ Ready',working:'⏳ Working',lost:'❌ Lost',
+    total:'Total',statReady:'Ready',statWorking:'Working',statLost:'Lost',
+    deleteTr:'Delete range',deleteList:'Delete list',
+  },
+  he:{
+    appTitle:'מעקב קבצים',lists:'רשימות',noList:'בחר תאריך ולחץ + ליצירת רשימה',
+    addTr:'＋ הוסף טווח שעות',export:'📤 ייצוא',copy:'📋 העתק הודעה',copied:'✅ הועתק!',
+    from:'משעה',to:'עד שעה',addId:'הוסף',idPlaceholder:'הכנס מזהה...',
+    empty:'אין מזהים עדיין',ready:'✅ מוכן',working:'⏳ בעבודה',lost:'❌ אבד',
+    total:'סה"כ',statReady:'מוכן',statWorking:'בעבודה',statLost:'אבד',
+    deleteTr:'מחק טווח',deleteList:'מחק רשימה',
+  }
+};
+function t(k){ return L[S.lang][k]||k; }
+
+// ── PERSIST ───────────────────────────────────────────────────────────────────
+function save(){ localStorage.setItem('ft_v3', JSON.stringify(S)); }
+function load(){
+  try{ const r=localStorage.getItem('ft_v3'); if(r) S=JSON.parse(r); }catch(e){}
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+load();
+document.body.classList.toggle('dark', S.dark);
+// default date input to today
+const todayStr = new Date().toISOString().split('T')[0];
+document.getElementById('new-list-date').value = todayStr;
+
+// wire up create button + Enter on date input
+document.getElementById('btn-create-list').addEventListener('click', createList);
+document.getElementById('new-list-date').addEventListener('keydown', e => { if(e.key==='Enter') createList(); });
+
+applyLang();
+renderSidebar();
+if(S.active && S.lists[S.active]) openList(S.active);
+else showNoList();
+
+// ── DARK / LANG ───────────────────────────────────────────────────────────────
+function toggleDark(){
+  S.dark=!S.dark;
+  document.body.classList.toggle('dark',S.dark);
+  document.getElementById('dark-btn').textContent=S.dark?'☀️':'🌙';
+  save();
+}
+function toggleLang(){
+  S.lang=S.lang==='en'?'he':'en';
+  applyLang();
+  save();
+  renderSidebar();
+  if(S.active&&S.lists[S.active]) openList(S.active); else showNoList();
+}
+function applyLang(){
+  const he=S.lang==='he';
+  document.documentElement.lang=S.lang;
+  document.documentElement.dir=he?'rtl':'ltr';
+  document.getElementById('lang-btn').textContent=he?'🌐 EN':'🌐 HE';
+  document.getElementById('dark-btn').textContent=S.dark?'☀️':'🌙';
+  document.getElementById('app-title').textContent=t('appTitle');
+}
+
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
+function renderSidebar(){
+  document.getElementById('lbl-lists').textContent=t('lists');
+  const c=document.getElementById('sb-list');
+  const keys=Object.keys(S.lists);
+  if(!keys.length){ c.innerHTML='<div class="empty-msg" style="padding:14px 8px">—</div>'; return; }
+  c.innerHTML=keys.map(id=>{
+    const li=S.lists[id];
+    const label=formatDate(li.date);
+    const active=id===S.active;
+    return `<div class="sb-item${active?' active':''}" onclick="openList('${id}')">
+      <span class="sb-name">📅 ${label}</span>
+      <button class="sb-del" onclick="deleteList(event,'${id}')" title="${t('deleteList')}">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function createList(){
+  const dateVal=document.getElementById('new-list-date').value;
+  if(!dateVal) return;
+  // check for duplicate date
+  const existing=Object.keys(S.lists).find(id=>S.lists[id].date===dateVal);
+  if(existing){ openList(existing); return; }
+  const id='lst_'+Date.now();
+  S.lists[id]={
+    date:dateVal,
+    timeRanges:[{ id:'tr_'+Date.now(), start:'', end:'', items:[] }]
+  };
+  S.active=id;
+  save();
+  renderSidebar();
+  openList(id);
+}
+
+function deleteList(e,id){
+  e.stopPropagation();
+  const label=formatDate(S.lists[id].date);
+  if(!confirm(S.lang==='he'?`למחוק את הרשימה "${label}"?`:`Delete list for "${label}"?`)) return;
+  delete S.lists[id];
+  const rem=Object.keys(S.lists);
+  S.active=rem.length?rem[rem.length-1]:null;
+  save();
+  renderSidebar();
+  if(S.active) openList(S.active); else showNoList();
+}
+
+// ── EDITOR ────────────────────────────────────────────────────────────────────
+function showNoList(){
+  document.getElementById('no-list-msg').style.display='';
+  document.getElementById('lbl-no-list').textContent=t('noList');
+  document.getElementById('list-editor').style.display='none';
+}
+
+function openList(id){
+  S.active=id;
+  save();
+  renderSidebar();
+  const li=S.lists[id];
+  document.getElementById('no-list-msg').style.display='none';
+  document.getElementById('list-editor').style.display='';
+  document.getElementById('list-date-display').textContent='📅 '+formatDate(li.date);
+  document.getElementById('btn-add-tr').textContent=t('addTr');
+  document.getElementById('btn-export').textContent=t('export');
+  document.getElementById('btn-copy').textContent=t('copy');
+  document.getElementById('export-out').style.display='none';
+  renderTimeRanges();
+}
+
+function renderTimeRanges(){
+  const li=S.lists[S.active];
+  const c=document.getElementById('tr-container');
+  c.innerHTML=li.timeRanges.map((tr,ti)=>buildTrHtml(tr,ti)).join('');
+  // wire up events
+  li.timeRanges.forEach((tr,ti)=>{
+    // time inputs
+    const startEl=document.getElementById(`start_${ti}`);
+    const endEl=document.getElementById(`end_${ti}`);
+    if(startEl) startEl.addEventListener('input',()=>{ li.timeRanges[ti].start=startEl.value; save(); });
+    if(endEl) endEl.addEventListener('input',()=>{ li.timeRanges[ti].end=endEl.value; save(); });
+    // add-id input
+    const addInp=document.getElementById(`addinp_${ti}`);
+    if(addInp) addInp.addEventListener('keydown',e=>{ if(e.key==='Enter') addId(ti); });
+  });
+}
+
+function buildTrHtml(tr,ti){
+  const items=tr.items;
+  const total=items.length;
+  const ready=items.filter(x=>x.status==='ready').length;
+  const working=items.filter(x=>x.status==='working').length;
+  const lost=items.filter(x=>x.status==='lost').length;
+
+  const statsHtml=total?`<div class="stats">
+    <span class="chip">${t('total')}: ${total}</span>
+    <span class="chip" style="background:var(--ready-bg);color:var(--ready-c);border-color:var(--ready-b)">${t('statReady')}: ${ready}</span>
+    <span class="chip" style="background:var(--work-bg);color:var(--work-c);border-color:var(--work-b)">${t('statWorking')}: ${working}</span>
+    <span class="chip" style="background:var(--lost-bg);color:var(--lost-c);border-color:var(--lost-b)">${t('statLost')}: ${lost}</span>
+  </div>`:'';
+
+  const itemsHtml=items.length
+    ? items.map((item,ii)=>`
+      <div class="id-item">
+        <span class="id-name">${escHtml(item.id)}</span>
+        <div class="status-btns">
+          <button class="sbtn${item.status==='ready'?' sr':''}" onclick="setStatus(${ti},${ii},'ready')">${t('ready')}</button>
+          <button class="sbtn${item.status==='working'?' sw':''}" onclick="setStatus(${ti},${ii},'working')">${t('working')}</button>
+          <button class="sbtn${item.status==='lost'?' sl':''}" onclick="setStatus(${ti},${ii},'lost')">${t('lost')}</button>
+        </div>
+        <button class="id-del" onclick="removeId(${ti},${ii})">✕</button>
+      </div>`).join('')
+    : `<div class="empty-msg">${t('empty')}</div>`;
+
+  return `<div class="tr-section">
+    <div class="tr-header">
+      <span class="tr-label">${t('from')}</span>
+      <input type="time" class="tr-time" id="start_${ti}" value="${tr.start||''}" />
+      <span class="tr-sep">→</span>
+      <span class="tr-label">${t('to')}</span>
+      <input type="time" class="tr-time" id="end_${ti}" value="${tr.end||''}" />
+      <button class="tr-del" onclick="deleteTimeRange(${ti})" title="${t('deleteTr')}">🗑</button>
+    </div>
+    <div class="tr-body">
+      <div class="add-row">
+        <input type="text" id="addinp_${ti}" placeholder="${t('idPlaceholder')}" />
+        <button class="btn-add" onclick="addId(${ti})">${t('addId')}</button>
+      </div>
+      ${statsHtml}
+      <div class="id-list">${itemsHtml}</div>
+    </div>
+  </div>`;
+}
+
+function addTimeRange(){
+  S.lists[S.active].timeRanges.push({ id:'tr_'+Date.now(), start:'', end:'', items:[] });
+  save();
+  renderTimeRanges();
+  document.getElementById('export-out').style.display='none';
+}
+
+function deleteTimeRange(ti){
+  const li=S.lists[S.active];
+  if(li.timeRanges.length===1){ alert(S.lang==='he'?'חייבת להיות לפחות טווח שעות אחד':'At least one time range is required.'); return; }
+  li.timeRanges.splice(ti,1);
+  save();
+  renderTimeRanges();
+  document.getElementById('export-out').style.display='none';
+}
+
+function addId(ti){
+  const inp=document.getElementById(`addinp_${ti}`);
+  const val=inp.value.trim();
+  if(!val) return;
+  S.lists[S.active].timeRanges[ti].items.push({ id:val, status:null });
+  inp.value='';
+  save();
+  renderTimeRanges();
+  // re-focus
+  const el=document.getElementById(`addinp_${ti}`);
+  if(el) el.focus();
+  document.getElementById('export-out').style.display='none';
+}
+
+function setStatus(ti,ii,status){
+  const item=S.lists[S.active].timeRanges[ti].items[ii];
+  item.status=item.status===status?null:status;
+  save();
+  renderTimeRanges();
+}
+
+function removeId(ti,ii){
+  S.lists[S.active].timeRanges[ti].items.splice(ii,1);
+  save();
+  renderTimeRanges();
+  document.getElementById('export-out').style.display='none';
+}
+
+// ── EXPORT (always Hebrew) ────────────────────────────────────────────────────
+function exportMessage(){
+  const li=S.lists[S.active];
+  const lines=[
+    `📋 מעקב העברת קבצים`,
+    `📅 תאריך: ${formatDate(li.date)}`,
+    ``
+  ];
+
+  const heStatus={
+    ready:'✅ מוכן להעברה',
+    working:'⏳ עדיין בעבודה',
+    lost:'❌ קובץ אבד',
+    null:'⬜ ללא סטטוס'
+  };
+
+  let grandTotal=0, grandReady=0, grandWorking=0, grandLost=0;
+
+  li.timeRanges.forEach(tr=>{
+    const from=tr.start||'--:--';
+    const to=tr.end||'--:--';
+    lines.push(`⏰ טווח שעות: ${from} – ${to}`);
+    if(!tr.items.length){
+      lines.push('  (אין מזהים)');
+    } else {
+      tr.items.forEach(item=>{
+        const s=item.status?heStatus[item.status]:heStatus['null'];
+        lines.push(`  • ${item.id} — ${s}`);
+        grandTotal++;
+        if(item.status==='ready') grandReady++;
+        else if(item.status==='working') grandWorking++;
+        else if(item.status==='lost') grandLost++;
+      });
+    }
+    lines.push('');
+  });
+
+  if(grandTotal>0){
+    lines.push(`📊 סיכום: ${grandReady} מוכן | ${grandWorking} בעבודה | ${grandLost} אבד | סה"כ ${grandTotal}`);
+  }
+
+  document.getElementById('export-text').value=lines.join('\n');
+  document.getElementById('export-out').style.display='block';
+  document.getElementById('copied-msg').style.display='none';
+}
+
+function copyExport(){
+  const ta=document.getElementById('export-text');
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const m=document.getElementById('copied-msg');
+    m.textContent=t('copied');
+    m.style.display='block';
+    setTimeout(()=>m.style.display='none',2000);
+  });
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function formatDate(str){
+  if(!str) return '—';
+  const [y,m,d]=str.split('-');
+  return `${d}/${m}/${y}`;
+}
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
