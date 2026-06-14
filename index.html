@@ -138,8 +138,14 @@
 <div class="layout">
   <div class="sidebar">
     <div class="sb-head" id="lbl-lists">LISTS</div>
-    <div class="sb-new">
-      <input type="date" id="new-list-date" />
+    <div class="sb-new" style="flex-wrap:wrap;gap:4px">
+      <div style="display:flex;align-items:center;gap:3px;flex:1">
+        <input type="number" id="nd-day"   min="1" max="31"   placeholder="DD"   style="width:42px;padding:6px 5px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:.83rem;font-family:inherit;outline:none;text-align:center" />
+        <span style="color:var(--text3)">/</span>
+        <input type="number" id="nd-month" min="1" max="12"   placeholder="MM"   style="width:42px;padding:6px 5px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:.83rem;font-family:inherit;outline:none;text-align:center" />
+        <span style="color:var(--text3)">/</span>
+        <input type="number" id="nd-year"  min="2000" max="2099" placeholder="YYYY" style="width:56px;padding:6px 5px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:.83rem;font-family:inherit;outline:none;text-align:center" />
+      </div>
       <button class="sb-add" id="btn-create-list" title="Create list">＋</button>
     </div>
     <div class="sb-list" id="sb-list"></div>
@@ -218,13 +224,15 @@ function load(){
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 load();
 document.body.classList.toggle('dark', S.dark);
-// default date input to today
-const todayStr = new Date().toISOString().split('T')[0];
-document.getElementById('new-list-date').value = todayStr;
+// default date inputs to today
+const _today = new Date();
+document.getElementById('nd-day').value   = _today.getDate();
+document.getElementById('nd-month').value = _today.getMonth() + 1;
+document.getElementById('nd-year').value  = _today.getFullYear();
 
-// wire up create button + Enter on date input
+// wire up create button + Enter on year input
 document.getElementById('btn-create-list').addEventListener('click', createList);
-document.getElementById('new-list-date').addEventListener('keydown', e => { if(e.key==='Enter') createList(); });
+document.getElementById('nd-year').addEventListener('keydown', e => { if(e.key==='Enter') createList(); });
 
 applyLang();
 renderSidebar();
@@ -272,7 +280,11 @@ function renderSidebar(){
 }
 
 function createList(){
-  const dateVal=document.getElementById('new-list-date').value;
+  const day=parseInt(document.getElementById('nd-day').value);
+  const month=parseInt(document.getElementById('nd-month').value);
+  const year=parseInt(document.getElementById('nd-year').value);
+  if(!day||!month||!year||year<2000) return;
+  const dateVal=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   if(!dateVal) return;
   // check for duplicate date
   const existing=Object.keys(S.lists).find(id=>S.lists[id].date===dateVal);
@@ -433,43 +445,29 @@ function removeId(ti,ii){
 // ── EXPORT (always Hebrew) ────────────────────────────────────────────────────
 function exportMessage(){
   const li=S.lists[S.active];
-  const lines=[
-    `📋 מעקב העברת קבצים`,
-    `📅 תאריך: ${formatDate(li.date)}`,
-    ``
+  const lines=[ formatDate(li.date) ];
+
+  const groups=[
+    { key:'ready',   label:'מוכן להעברה:' },
+    { key:'working', label:'עדיין בעבודה:' },
+    { key:'lost',    label:'קובץ אבד:' },
   ];
 
-  const heStatus={
-    ready:'✅ מוכן להעברה',
-    working:'⏳ עדיין בעבודה',
-    lost:'❌ קובץ אבד',
-    null:'⬜ ללא סטטוס'
-  };
-
-  let grandTotal=0, grandReady=0, grandWorking=0, grandLost=0;
-
-  li.timeRanges.forEach(tr=>{
+  li.timeRanges.forEach((tr,i)=>{
+    if(i>0) lines.push('');
     const from=tr.start||'--:--';
     const to=tr.end||'--:--';
-    lines.push(`⏰ טווח שעות: ${from} – ${to}`);
-    if(!tr.items.length){
-      lines.push('  (אין מזהים)');
-    } else {
-      tr.items.forEach(item=>{
-        const s=item.status?heStatus[item.status]:heStatus['null'];
-        lines.push(`  • ${item.id} — ${s}`);
-        grandTotal++;
-        if(item.status==='ready') grandReady++;
-        else if(item.status==='working') grandWorking++;
-        else if(item.status==='lost') grandLost++;
-      });
-    }
-    lines.push('');
-  });
+    lines.push(`${from} – ${to}`);
 
-  if(grandTotal>0){
-    lines.push(`📊 סיכום: ${grandReady} מוכן | ${grandWorking} בעבודה | ${grandLost} אבד | סה"כ ${grandTotal}`);
-  }
+    groups.forEach(g=>{
+      const ids=tr.items.filter(x=>x.status===g.key).map(x=>x.id);
+      if(!ids.length) return;
+      lines.push('');
+      lines.push(g.label);
+      lines.push('');
+      ids.forEach(id=>lines.push(`* ${id}`));
+    });
+  });
 
   document.getElementById('export-text').value=lines.join('\n');
   document.getElementById('export-out').style.display='block';
