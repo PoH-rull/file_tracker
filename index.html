@@ -122,12 +122,23 @@
   .btn-copy:hover{background:var(--accent-h)}
   .copied{display:none;text-align:center;color:var(--green);font-size:.8rem;margin-top:5px}
 
-  @media(max-width:580px){.sidebar{width:170px}.main{padding:14px 10px}}
+  /* SIDEBAR TOGGLE (mobile only) */
+  .sb-toggle{display:none}
+  .sb-overlay{display:none;position:fixed;inset:0;top:49px;background:rgba(0,0,0,.45);z-index:99}
+  @media(max-width:580px){
+    .sb-toggle{display:flex;align-items:center}
+    .sidebar{position:fixed;top:49px;inset-inline-start:0;height:calc(100vh - 49px);width:240px;z-index:100;translate:-100% 0;transition:translate .25s ease}
+    html[dir=rtl] .sidebar{translate:100% 0}
+    .sidebar.open{translate:0 0!important}
+    .sb-overlay.open{display:block}
+    .main{padding:14px 10px}
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
+  <button class="tbtn sb-toggle" onclick="toggleSidebar()" id="sb-toggle" aria-label="Toggle list">☰</button>
   <h1>📋 <span id="app-title">File Tracker</span></h1>
   <div style="display:flex;gap:7px">
     <button class="tbtn" onclick="toggleLang()" id="lang-btn">🌐 HE</button>
@@ -135,6 +146,7 @@
   </div>
 </div>
 
+<div id="sb-overlay" class="sb-overlay" onclick="toggleSidebar()"></div>
 <div class="layout">
   <div class="sidebar">
     <div class="sb-head" id="lbl-lists">LISTS</div>
@@ -239,6 +251,21 @@ renderSidebar();
 if(S.active && S.lists[S.active]) openList(S.active);
 else showNoList();
 
+// ── SIDEBAR TOGGLE ────────────────────────────────────────────────────────────
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sb-overlay');
+  const open=sb.classList.toggle('open');
+  ov.classList.toggle('open',open);
+}
+function closeSidebarMobile(){
+  if(window.innerWidth>580) return;
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sb-overlay');
+  sb.classList.remove('open');
+  ov.classList.remove('open');
+}
+
 // ── DARK / LANG ───────────────────────────────────────────────────────────────
 function toggleDark(){
   S.dark=!S.dark;
@@ -323,6 +350,7 @@ function openList(id){
   S.active=id;
   save();
   renderSidebar();
+  closeSidebarMobile();
   const li=S.lists[id];
   document.getElementById('no-list-msg').style.display='none';
   document.getElementById('list-editor').style.display='';
@@ -365,8 +393,13 @@ function buildTrHtml(tr,ti){
     <span class="chip" style="background:var(--lost-bg);color:var(--lost-c);border-color:var(--lost-b)">${t('statLost')}: ${lost}</span>
   </div>`:'';
 
-  const itemsHtml=items.length
-    ? items.map((item,ii)=>`
+  const sortedItems=items.map((item,ii)=>({item,ii})).sort((a,b)=>{
+    const na=Number(a.item.id),nb=Number(b.item.id);
+    if(!isNaN(na)&&!isNaN(nb)) return na-nb;
+    return String(a.item.id).localeCompare(String(b.item.id));
+  });
+  const itemsHtml=sortedItems.length
+    ? sortedItems.map(({item,ii})=>`
       <div class="id-item">
         <span class="id-name">${escHtml(item.id)}</span>
         <div class="status-btns">
