@@ -777,7 +777,9 @@ function exportMessage(){
     if(i>0) lines.push('');
     const from=tr.start||'--:--';
     const to=tr.end||'--:--';
-    lines.push(`${from} – ${to}`);
+    // Invisible left-to-right marks (U+200E) around the dash keep "08:00 – 12:00" in order
+    // inside right-to-left text; without them it shows as "12:00 – 08:00" here and in chat apps.
+    lines.push(`${from}‎ – ‎${to}`);
 
     groups.forEach(g=>{
       const ids=tr.items.filter(x=>x.status===g.key).map(x=>x.id)
