@@ -89,6 +89,9 @@
   .add-row input:focus{border-color:var(--accent)}
   .btn-add{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:.85rem;white-space:nowrap}
   .btn-add:hover{background:var(--accent-h)}
+  .add-row input.dup{border-color:#ef4444}
+  .dup-msg{display:none;color:#ef4444;font-size:.8rem;margin:-4px 0 10px}
+  .id-item.flash{border-color:#ef4444;box-shadow:0 0 0 2px var(--lost-b)}
 
   /* ID LIST */
   .id-list{display:flex;flex-direction:column;gap:7px}
@@ -215,6 +218,7 @@ const L = {
     empty:'No IDs yet',ready:'✅ Ready',working:'⏳ Working',lost:'❌ Lost',
     total:'Total',statReady:'Ready',statWorking:'Working',statLost:'Lost',
     deleteTr:'Delete range',deleteList:'Delete list',
+    dupSame:'This ID is already in this time range',dupOther:'This ID is already in time range',
   },
   he:{
     appTitle:'מעקב קבצים',lists:'רשימות',noList:'בחר תאריך ולחץ + ליצירת רשימה',
@@ -223,6 +227,7 @@ const L = {
     empty:'אין מזהים עדיין',ready:'✅ מוכן',working:'⏳ בעבודה',lost:'❌ אבד',
     total:'סה"כ',statReady:'מוכן',statWorking:'בעבודה',statLost:'אבד',
     deleteTr:'מחק טווח',deleteList:'מחק רשימה',
+    dupSame:'המזהה כבר קיים בטווח השעות הזה',dupOther:'המזהה כבר קיים בטווח השעות',
   }
 };
 function t(k){ return L[S.lang][k]||k; }
@@ -375,7 +380,10 @@ function renderTimeRanges(){
     if(endEl) endEl.addEventListener('input',()=>{ li.timeRanges[ti].end=endEl.value; save(); });
     // add-id input
     const addInp=document.getElementById(`addinp_${ti}`);
-    if(addInp) addInp.addEventListener('keydown',e=>{ if(e.key==='Enter') addId(ti); });
+    if(addInp){
+      addInp.addEventListener('keydown',e=>{ if(e.key==='Enter') addId(ti); });
+      addInp.addEventListener('input',()=>clearDup(ti));
+    }
   });
 }
 
@@ -400,7 +408,7 @@ function buildTrHtml(tr,ti){
   });
   const itemsHtml=sortedItems.length
     ? sortedItems.map(({item,ii})=>`
-      <div class="id-item">
+      <div class="id-item" id="item_${ti}_${ii}">
         <span class="id-name">${escHtml(item.id)}</span>
         <div class="status-btns">
           <button class="sbtn${item.status==='ready'?' sr':''}" onclick="setStatus(${ti},${ii},'ready')">${t('ready')}</button>
@@ -425,6 +433,7 @@ function buildTrHtml(tr,ti){
         <input type="text" id="addinp_${ti}" placeholder="${t('idPlaceholder')}" />
         <button class="btn-add" onclick="addId(${ti})">${t('addId')}</button>
       </div>
+      <div class="dup-msg" id="dupmsg_${ti}"></div>
       ${statsHtml}
       <div class="id-list">${itemsHtml}</div>
     </div>
@@ -451,6 +460,9 @@ function addId(ti){
   const inp=document.getElementById(`addinp_${ti}`);
   const val=inp.value.trim();
   if(!val) return;
+  // block duplicate IDs anywhere in this list (all time ranges of the date)
+  const dup=findDuplicate(val);
+  if(dup){ showDup(ti,dup); return; }
   S.lists[S.active].timeRanges[ti].items.push({ id:val, status:null });
   inp.value='';
   save();
@@ -459,6 +471,42 @@ function addId(ti){
   const el=document.getElementById(`addinp_${ti}`);
   if(el) el.focus();
   document.getElementById('export-out').style.display='none';
+}
+
+// IDs match after trimming, case-insensitively ("A12" == "a12"); "007" and "7" stay distinct
+function findDuplicate(val){
+  const key=val.toLowerCase();
+  const trs=S.lists[S.active].timeRanges;
+  for(let ti=0;ti<trs.length;ti++){
+    const ii=trs[ti].items.findIndex(x=>String(x.id).trim().toLowerCase()===key);
+    if(ii!==-1) return { ti, ii };
+  }
+  return null;
+}
+
+function showDup(ti,dup){
+  const inp=document.getElementById(`addinp_${ti}`);
+  const msg=document.getElementById(`dupmsg_${ti}`);
+  const tr=S.lists[S.active].timeRanges[dup.ti];
+  msg.textContent=dup.ti===ti
+    ? t('dupSame')
+    : `${t('dupOther')} ${tr.start||'--:--'} – ${tr.end||'--:--'}`;
+  msg.style.display='block';
+  inp.classList.add('dup');
+  inp.select();
+  const el=document.getElementById(`item_${dup.ti}_${dup.ii}`);
+  if(el){
+    el.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    el.classList.add('flash');
+    setTimeout(()=>el.classList.remove('flash'),1500);
+  }
+}
+
+function clearDup(ti){
+  const msg=document.getElementById(`dupmsg_${ti}`);
+  if(msg) msg.style.display='none';
+  const inp=document.getElementById(`addinp_${ti}`);
+  if(inp) inp.classList.remove('dup');
 }
 
 function setStatus(ti,ii,status){
