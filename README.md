@@ -4,8 +4,11 @@ A Hebrew/English app for tracking file transfers by date and time range.
 
 ## Features
 - Create lists per date, each with multiple time ranges
-- Add file IDs and track status: Ready / Working / Lost
-- Filter chips + stats counter per time range
+- Add 3-digit file IDs and track status: Ready / Working / Lost
+  - Typing the 3rd digit adds the ID automatically; paste a whole list at once
+  - Duplicate IDs are blocked across all time ranges of a date
+- Filter chips + stats counter per time range, "mark rest ready" bulk action
+- Undo for removed IDs, deleted time ranges and bulk changes
 - Export a formatted Hebrew message ready to copy-paste
 - Dark mode toggle
 - Language toggle (UI in EN/HE — export always in Hebrew)

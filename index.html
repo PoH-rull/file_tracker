@@ -12,133 +12,180 @@
     --border: #e2e5ef;
     --text: #1a1a2e;
     --text2: #666;
-    --text3: #bbb;
+    --text3: #a0a4b8;
     --accent: #4f46e5;
     --accent-h: #4338ca;
+    --accent-soft: #eef2ff;
     --green: #059669;
     --green-h: #047857;
+    --danger: #ef4444;
     --shadow: 0 2px 10px rgba(0,0,0,0.07);
     --ready-bg:#d1fae5;--ready-c:#065f46;--ready-b:#6ee7b7;
     --work-bg:#fef3c7;--work-c:#92400e;--work-b:#fcd34d;
     --lost-bg:#fee2e2;--lost-c:#991b1b;--lost-b:#fca5a5;
+    --mono: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
   }
   .dark {
     --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3248;
-    --text:#e8eaf6;--text2:#9ea3c0;--text3:#444a6a;--shadow:0 2px 10px rgba(0,0,0,0.4);
-    --ready-bg:#064e3b;--ready-c:#6ee7b7;--ready-b:#065f46;
-    --work-bg:#451a03;--work-c:#fcd34d;--work-b:#92400e;
-    --lost-bg:#450a0a;--lost-c:#fca5a5;--lost-b:#991b1b;
+    --text:#e8eaf6;--text2:#9ea3c0;--text3:#5a6088;--shadow:0 2px 10px rgba(0,0,0,0.4);
+    --accent-soft:#272a4a;
+    --ready-bg:#064e3b;--ready-c:#6ee7b7;--ready-b:#059669;
+    --work-bg:#451a03;--work-c:#fcd34d;--work-b:#b45309;
+    --lost-bg:#450a0a;--lost-c:#fca5a5;--lost-b:#b91c1c;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .2s,color .2s}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;transition:background .2s,color .2s}
+  button{font-family:inherit}
+  /* 16px inputs stop iOS from zooming in on focus */
+  input{font-family:inherit;font-size:16px}
 
   /* TOP BAR */
-  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 18px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20;height:52px}
   .topbar h1{font-size:1rem;flex:1;white-space:nowrap}
   .tbtn{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.82rem;color:var(--text);transition:background .15s;white-space:nowrap}
   .tbtn:hover{background:var(--border)}
 
   /* LAYOUT */
-  .layout{display:flex;flex:1;min-height:0;height:calc(100vh - 49px)}
+  .layout{display:flex;flex:1;min-height:0}
 
   /* SIDEBAR */
-  .sidebar{width:220px;background:var(--surface);border-inline-end:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
-  .sb-head{padding:12px 12px 6px;font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
-  .sb-new{padding:0 8px 8px;display:flex;gap:6px;align-items:center}
-  .sb-new input{flex:1;padding:7px 9px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:0.83rem;outline:none;font-family:inherit}
-  .sb-new input:focus{border-color:var(--accent)}
-  .sb-add{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 11px;cursor:pointer;font-size:1rem;line-height:1;flex-shrink:0}
+  .sidebar{width:230px;background:var(--surface);border-inline-end:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+  .sb-head{padding:14px 12px 8px;font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+  .sb-new{padding:0 10px 10px;display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--border);margin-bottom:8px}
+  .dfields{display:flex;align-items:center;gap:3px;flex:1;direction:ltr}
+  .dfield{width:40px;padding:7px 3px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:15px;outline:none;text-align:center;-moz-appearance:textfield}
+  .dfield.y{width:58px}
+  .dfield::-webkit-inner-spin-button,.dfield::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .dfield:focus{border-color:var(--accent)}
+  .dfield.bad{border-color:var(--danger);animation:shake .3s}
+  .dsep{color:var(--text3)}
+  .sb-add{background:var(--accent);color:#fff;border:none;border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:1.1rem;line-height:1;flex-shrink:0}
   .sb-add:hover{background:var(--accent-h)}
   .sb-list{overflow-y:auto;flex:1;padding:0 6px 12px}
-  .sb-item{display:flex;align-items:center;gap:5px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:0.87rem;color:var(--text);transition:background .15s;margin-bottom:2px}
+  .sb-item{display:flex;align-items:center;gap:6px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:0.88rem;color:var(--text);transition:background .15s;margin-bottom:2px}
   .sb-item:hover{background:var(--surface2)}
   .sb-item.active{background:var(--accent);color:#fff}
-  .sb-item .sb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .sb-del{background:none;border:none;color:inherit;opacity:.45;cursor:pointer;padding:2px 5px;border-radius:4px;font-size:.8rem;flex-shrink:0}
-  .sb-del:hover{opacity:1;background:rgba(239,68,68,.2)}
+  .sb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sb-name small{opacity:.6;margin-inline-start:6px;font-size:.75rem}
+  .sb-count{font-size:.72rem;min-width:22px;text-align:center;padding:1px 6px;border-radius:10px;background:var(--surface2);color:var(--text2)}
+  .sb-item.active .sb-count{background:rgba(255,255,255,.22);color:#fff}
+  .sb-del{background:none;border:none;color:inherit;opacity:0;cursor:pointer;padding:2px 5px;border-radius:4px;font-size:.8rem;flex-shrink:0;transition:opacity .15s}
+  .sb-item:hover .sb-del,.sb-item.active .sb-del{opacity:.5}
+  .sb-del:hover{opacity:1!important;background:rgba(239,68,68,.25)}
 
   /* MAIN */
-  .main{flex:1;overflow-y:auto;padding:22px 18px}
-  .main-inner{max-width:660px;margin:0 auto}
+  .main{flex:1;overflow-y:auto;padding:22px 18px 80px}
+  .main-inner{max-width:680px;margin:0 auto}
   .no-list{text-align:center;color:var(--text3);margin-top:80px;font-size:.95rem;line-height:2.2}
 
-  /* CARD */
-  .card{background:var(--surface);border-radius:12px;padding:18px 18px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)}
-  .card-head{font-size:.85rem;color:var(--text2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-
   /* DATE HEADER */
-  .date-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-  .date-header h2{font-size:1.2rem;flex:1}
-  .date-edit{padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit;outline:none}
-  .date-edit:focus{border-color:var(--accent)}
+  .date-header{display:flex;align-items:flex-end;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .date-title{flex:1}
+  .date-title .wd{font-size:.8rem;color:var(--text2);text-transform:capitalize}
+  .date-title h2{font-size:1.35rem;font-family:var(--mono);letter-spacing:.02em}
+
+  /* CHIPS */
+  .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .chip{font-size:.76rem;padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);white-space:nowrap}
+  button.chip{cursor:pointer;transition:all .12s}
+  button.chip:hover:not(:disabled){filter:brightness(.96)}
+  button.chip:disabled{opacity:.4;cursor:default}
+  .chip.on{box-shadow:0 0 0 2px var(--accent);border-color:transparent}
+  .chip.c-ready{background:var(--ready-bg);color:var(--ready-c);border-color:var(--ready-b)}
+  .chip.c-working{background:var(--work-bg);color:var(--work-c);border-color:var(--work-b)}
+  .chip.c-lost{background:var(--lost-bg);color:var(--lost-c);border-color:var(--lost-b)}
+  .chip.on.c-ready,.chip.on.c-working,.chip.on.c-lost{border-color:transparent}
 
   /* TIME RANGE SECTION */
-  .tr-section{background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
-  .tr-header{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}
-  .tr-label{font-size:.82rem;color:var(--text2);white-space:nowrap}
-  .tr-time{padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);font-size:.88rem;font-family:inherit;width:100px;outline:none}
+  .tr-section{background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+  .tr-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .tr-label{font-size:.8rem;color:var(--text2);white-space:nowrap}
+  .tr-time{padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);width:112px;outline:none}
   .tr-time:focus{border-color:var(--accent)}
-  .tr-sep{color:var(--text3);font-size:.9rem}
-  .tr-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 7px;border-radius:6px;font-size:.85rem;margin-inline-start:auto}
-  .tr-del:hover{color:#ef4444;background:var(--lost-bg)}
-  .tr-body{padding:12px 14px}
+  .tr-sep{color:var(--text3)}
+  .tr-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:5px 8px;border-radius:6px;font-size:.9rem;margin-inline-start:auto}
+  .tr-del:hover{color:var(--danger);background:var(--lost-bg)}
+  .tr-body{padding:14px}
 
   /* ADD ID ROW */
-  .add-row{display:flex;gap:8px;margin-bottom:10px}
-  .add-row input{flex:1;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:.9rem;font-family:inherit;outline:none}
-  .add-row input:focus{border-color:var(--accent)}
-  .btn-add{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:.85rem;white-space:nowrap}
+  .add-row{display:flex;gap:8px}
+  .id-input{flex:1;min-width:0;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-family:var(--mono);font-size:1.25rem;letter-spacing:.35em;text-align:center;outline:none;transition:border-color .15s}
+  .id-input::placeholder{color:var(--text3);letter-spacing:.35em}
+  .id-input:focus{border-color:var(--accent);background:var(--surface)}
+  .id-input.err{border-color:var(--danger);animation:shake .3s}
+  .btn-add{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:0 18px;cursor:pointer;font-size:.9rem;white-space:nowrap}
   .btn-add:hover{background:var(--accent-h)}
+  .hint{font-size:.76rem;color:var(--text3);margin:6px 2px 12px;min-height:1em}
+  .hint.err{color:var(--danger)}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  .filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .btn-rest{margin-inline-start:auto;background:none;border:1.5px dashed var(--ready-b);color:var(--ready-c);border-radius:20px;padding:4px 10px;font-size:.76rem;cursor:pointer}
+  .dark .btn-rest{color:var(--ready-c)}
+  .btn-rest:hover{background:var(--ready-bg)}
 
   /* ID LIST */
-  .id-list{display:flex;flex-direction:column;gap:7px}
-  .id-item{display:flex;align-items:center;gap:7px;background:var(--surface2);border-radius:9px;padding:8px 11px;flex-wrap:wrap;border:1px solid var(--border)}
-  .id-name{font-weight:600;font-size:.9rem;flex:1;min-width:60px}
-  .status-btns{display:flex;gap:5px;flex-wrap:wrap}
-  .sbtn{padding:4px 10px;border-radius:20px;font-size:.74rem;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .12s}
-  .sbtn:hover{opacity:.8}
-  .sbtn.sr{background:var(--ready-bg);color:var(--ready-c);border-color:var(--ready-b)}
-  .sbtn.sw{background:var(--work-bg);color:var(--work-c);border-color:var(--work-b)}
-  .sbtn.sl{background:var(--lost-bg);color:var(--lost-c);border-color:var(--lost-b)}
-  .id-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:3px 6px;border-radius:5px;font-size:.9rem}
-  .id-del:hover{color:#ef4444;background:var(--lost-bg)}
-
-  /* STATS */
-  .stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-  .chip{font-size:.74rem;padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2)}
-  .empty-msg{text-align:center;color:var(--text3);font-size:.85rem;padding:14px 0}
+  .id-list{display:flex;flex-direction:column;gap:6px}
+  .id-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:10px;padding:7px 8px 7px 12px;border:1px solid var(--border);border-inline-start:4px solid var(--border);transition:box-shadow .2s,border-color .2s}
+  .id-item.st-ready{border-inline-start-color:var(--ready-b)}
+  .id-item.st-working{border-inline-start-color:var(--work-b)}
+  .id-item.st-lost{border-inline-start-color:var(--lost-b)}
+  .id-item.flash{box-shadow:0 0 0 2px var(--danger)}
+  .id-name{font-family:var(--mono);font-weight:700;font-size:1.05rem;letter-spacing:.06em;min-width:42px}
+  .seg{display:flex;margin-inline-start:auto;border:1.5px solid var(--border);border-radius:9px;overflow:hidden;flex-shrink:0}
+  .seg button{border:none;background:var(--surface);padding:6px 10px;font-size:.78rem;cursor:pointer;color:var(--text2);display:flex;gap:4px;align-items:center;transition:background .12s}
+  .seg button+button{border-inline-start:1.5px solid var(--border)}
+  .seg button:hover{background:var(--surface2)}
+  .seg button.on-ready{background:var(--ready-bg);color:var(--ready-c);font-weight:600}
+  .seg button.on-working{background:var(--work-bg);color:var(--work-c);font-weight:600}
+  .seg button.on-lost{background:var(--lost-bg);color:var(--lost-c);font-weight:600}
+  .id-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:6px 8px;border-radius:6px;font-size:.9rem}
+  .id-del:hover{color:var(--danger);background:var(--lost-bg)}
+  .empty-msg{text-align:center;color:var(--text3);font-size:.85rem;padding:16px 0}
 
   /* ACTIONS ROW */
   .actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-  .btn-add-tr{background:var(--surface);border:1.5px dashed var(--border);color:var(--text2);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:.87rem;flex:1;transition:all .15s}
-  .btn-add-tr:hover{border-color:var(--accent);color:var(--accent);background:var(--surface2)}
-  .btn-export{background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px 20px;cursor:pointer;font-size:.87rem;white-space:nowrap}
+  .btn-add-tr{background:var(--surface);border:1.5px dashed var(--border);color:var(--text2);border-radius:9px;padding:11px 16px;cursor:pointer;font-size:.88rem;flex:1;transition:all .15s}
+  .btn-add-tr:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .btn-export{background:var(--green);color:#fff;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;font-size:.88rem;white-space:nowrap}
   .btn-export:hover{background:var(--green-h)}
 
   /* EXPORT OUTPUT */
-  .export-out{display:none;margin-top:12px}
-  .export-out textarea{width:100%;min-height:160px;border:1.5px solid var(--border);border-radius:8px;padding:11px;font-size:.88rem;font-family:inherit;direction:rtl;resize:vertical;outline:none;background:var(--surface2);color:var(--text)}
-  .btn-copy{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px;cursor:pointer;font-size:.85rem;width:100%;margin-top:7px}
+  .export-out{display:none;margin-top:4px}
+  .export-out textarea{width:100%;min-height:180px;border:1.5px solid var(--border);border-radius:9px;padding:12px;font-size:.9rem;font-family:inherit;direction:rtl;resize:vertical;outline:none;background:var(--surface);color:var(--text)}
+  .btn-copy{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px;cursor:pointer;font-size:.88rem;width:100%;margin-top:7px}
   .btn-copy:hover{background:var(--accent-h)}
-  .copied{display:none;text-align:center;color:var(--green);font-size:.8rem;margin-top:5px}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:22px;left:50%;translate:-50% 20px;opacity:0;pointer-events:none;background:#1f2233;color:#fff;padding:10px 14px;border-radius:10px;font-size:.88rem;box-shadow:0 6px 24px rgba(0,0,0,.25);display:flex;gap:14px;align-items:center;z-index:200;transition:all .2s;max-width:calc(100vw - 32px)}
+  .toast.show{opacity:1;translate:-50% 0;pointer-events:auto}
+  .toast button{background:none;border:none;color:#a5b4fc;font-weight:700;cursor:pointer;font-size:.88rem;padding:2px 4px}
 
   /* SIDEBAR TOGGLE (mobile only) */
   .sb-toggle{display:none}
-  .sb-overlay{display:none;position:fixed;inset:0;top:49px;background:rgba(0,0,0,.45);z-index:99}
+  .sb-overlay{display:none;position:fixed;inset:0;top:52px;background:rgba(0,0,0,.45);z-index:99}
   @media(max-width:580px){
     .sb-toggle{display:flex;align-items:center}
-    .sidebar{position:fixed;top:49px;inset-inline-start:0;height:calc(100vh - 49px);width:240px;z-index:100;translate:-100% 0;transition:translate .25s ease}
+    .sidebar{position:fixed;top:52px;bottom:0;inset-inline-start:0;width:250px;z-index:100;translate:-100% 0;transition:translate .25s ease}
     html[dir=rtl] .sidebar{translate:100% 0}
     .sidebar.open{translate:0 0!important}
     .sb-overlay.open{display:block}
-    .main{padding:14px 10px}
+    .sb-del{opacity:.5}
+    .main{padding:14px 10px 80px}
+    .tr-body{padding:12px 10px}
+  }
+  /* narrow phones: icon-only status buttons, bigger tap targets */
+  @media(max-width:480px){
+    .seg .lbl{display:none}
+    .seg button{padding:8px 13px;font-size:1rem}
+    .tr-time{width:100px}
   }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <button class="tbtn sb-toggle" onclick="toggleSidebar()" id="sb-toggle" aria-label="Toggle list">☰</button>
+  <button class="tbtn sb-toggle" onclick="toggleSidebar()" aria-label="Toggle list">☰</button>
   <h1>📋 <span id="app-title">File Tracker</span></h1>
   <div style="display:flex;gap:7px">
     <button class="tbtn" onclick="toggleLang()" id="lang-btn">🌐 HE</button>
@@ -150,13 +197,13 @@
 <div class="layout">
   <div class="sidebar">
     <div class="sb-head" id="lbl-lists">LISTS</div>
-    <div class="sb-new" style="flex-wrap:wrap;gap:4px">
-      <div style="display:flex;align-items:center;gap:3px;flex:1">
-        <input type="number" id="nd-day"   min="1" max="31"   placeholder="DD"   style="width:42px;padding:6px 5px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:.83rem;font-family:inherit;outline:none;text-align:center" />
-        <span style="color:var(--text3)">/</span>
-        <input type="number" id="nd-month" min="1" max="12"   placeholder="MM"   style="width:42px;padding:6px 5px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:.83rem;font-family:inherit;outline:none;text-align:center" />
-        <span style="color:var(--text3)">/</span>
-        <input type="number" id="nd-year"  min="2000" max="2099" placeholder="YYYY" style="width:56px;padding:6px 5px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:.83rem;font-family:inherit;outline:none;text-align:center" />
+    <div class="sb-new">
+      <div class="dfields">
+        <input type="number" inputmode="numeric" class="dfield"   id="nd-day"   min="1" max="31" placeholder="DD" />
+        <span class="dsep">/</span>
+        <input type="number" inputmode="numeric" class="dfield"   id="nd-month" min="1" max="12" placeholder="MM" />
+        <span class="dsep">/</span>
+        <input type="number" inputmode="numeric" class="dfield y" id="nd-year"  min="2000" max="2099" placeholder="YYYY" />
       </div>
       <button class="sb-add" id="btn-create-list" title="Create list">＋</button>
     </div>
@@ -171,30 +218,32 @@
       </div>
 
       <div id="list-editor" style="display:none">
-        <!-- Date header -->
         <div class="date-header">
-          <h2 id="list-date-display"></h2>
+          <div class="date-title">
+            <div class="wd" id="list-weekday"></div>
+            <h2 id="list-date-display"></h2>
+          </div>
+          <div class="chips" id="day-stats"></div>
         </div>
 
         <!-- Time range sections rendered here -->
         <div id="tr-container"></div>
 
-        <!-- Actions -->
         <div class="actions">
           <button class="btn-add-tr" onclick="addTimeRange()" id="btn-add-tr">＋ Add Time Range</button>
           <button class="btn-export" onclick="exportMessage()" id="btn-export">📤 Export</button>
         </div>
 
-        <!-- Export output -->
         <div class="export-out" id="export-out">
           <textarea id="export-text" readonly></textarea>
           <button class="btn-copy" onclick="copyExport()" id="btn-copy">📋 Copy Message</button>
-          <div class="copied" id="copied-msg"></div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<div class="toast" id="toast"><span id="toast-msg"></span><button id="toast-undo"></button></div>
 
 <script>
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -205,51 +254,116 @@ let S = {
   lists: {}
   // lists[id] = { date:"YYYY-MM-DD", timeRanges:[{id,start,end,items:[{id,status}]}] }
 };
+const F = {};        // per-time-range status filter (tr.id -> 'all'|'ready'|...), not persisted
+let undoFn = null, toastTimer = null;
+
+const ID_RE = /^\d{3}$/;
+const STATUSES = [
+  { key:'ready',   ico:'✅' },
+  { key:'working', ico:'⏳' },
+  { key:'lost',    ico:'❌' },
+];
 
 // ── I18N ──────────────────────────────────────────────────────────────────────
 const L = {
   en:{
     appTitle:'File Tracker',lists:'LISTS',noList:'Pick a date and press + to create a list',
     addTr:'＋ Add Time Range',export:'📤 Export',copy:'📋 Copy Message',copied:'✅ Copied!',
-    from:'From',to:'To',addId:'Add ID',idPlaceholder:'Enter ID...',
-    empty:'No IDs yet',ready:'✅ Ready',working:'⏳ Working',lost:'❌ Lost',
-    total:'Total',statReady:'Ready',statWorking:'Working',statLost:'Lost',
+    from:'From',to:'To',addId:'Add',
+    hint:'3 digits · added automatically · paste many at once',
+    empty:'No IDs yet',emptyFilter:'No IDs with this status',
+    ready:'Ready',working:'Working',lost:'Lost',none:'No status',all:'All',
+    markRest:'✅ Mark rest ready',
     deleteTr:'Delete range',deleteList:'Delete list',
+    dupSame:'{id} is already in this time range',dupOther:'{id} is already in time range {range}',
+    badLen:'ID must be exactly 3 digits',
+    removed:'Removed {id}',trRemoved:'Time range removed',marked:'{n} marked ready',undo:'Undo',
+    pasted:'{n} added',pastedSkip:'{n} added · {s} skipped (duplicate or not 3 digits)',
+    dedup:'Cleaned up {n} duplicate IDs',
+    minOneTr:'At least one time range is required.',
+    confirmDel:'Delete list for "{d}"?',
   },
   he:{
     appTitle:'מעקב קבצים',lists:'רשימות',noList:'בחר תאריך ולחץ + ליצירת רשימה',
     addTr:'＋ הוסף טווח שעות',export:'📤 ייצוא',copy:'📋 העתק הודעה',copied:'✅ הועתק!',
-    from:'משעה',to:'עד שעה',addId:'הוסף',idPlaceholder:'הכנס מזהה...',
-    empty:'אין מזהים עדיין',ready:'✅ מוכן',working:'⏳ בעבודה',lost:'❌ אבד',
-    total:'סה"כ',statReady:'מוכן',statWorking:'בעבודה',statLost:'אבד',
+    from:'משעה',to:'עד שעה',addId:'הוסף',
+    hint:'3 ספרות · נוסף אוטומטית · אפשר להדביק כמה בבת אחת',
+    empty:'אין מזהים עדיין',emptyFilter:'אין מזהים בסטטוס הזה',
+    ready:'מוכן',working:'בעבודה',lost:'אבד',none:'ללא סטטוס',all:'הכל',
+    markRest:'✅ סמן את השאר כמוכן',
     deleteTr:'מחק טווח',deleteList:'מחק רשימה',
+    dupSame:'{id} כבר קיים בטווח השעות הזה',dupOther:'{id} כבר קיים בטווח השעות {range}',
+    badLen:'מזהה חייב להיות בן 3 ספרות בדיוק',
+    removed:'{id} הוסר',trRemoved:'טווח השעות נמחק',marked:'{n} סומנו כמוכן',undo:'בטל',
+    pasted:'{n} נוספו',pastedSkip:'{n} נוספו · {s} דולגו (כפולים או לא 3 ספרות)',
+    dedup:'נוקו {n} מזהים כפולים',
+    minOneTr:'חייבת להיות לפחות טווח שעות אחד',
+    confirmDel:'למחוק את הרשימה "{d}"?',
   }
 };
-function t(k){ return L[S.lang][k]||k; }
+// t('key', {var:value}) fills {var} placeholders
+function t(k,vars){
+  let s=L[S.lang][k]||k;
+  if(vars) for(const v in vars) s=s.replace(`{${v}}`,vars[v]);
+  return s;
+}
 
 // ── PERSIST ───────────────────────────────────────────────────────────────────
 function save(){ localStorage.setItem('ft_v3', JSON.stringify(S)); }
 function load(){
-  try{ const r=localStorage.getItem('ft_v3'); if(r) S=JSON.parse(r); }catch(e){}
+  try{
+    const r=localStorage.getItem('ft_v3');
+    if(r) S=JSON.parse(r);
+    else S.dark=window.matchMedia('(prefers-color-scheme: dark)').matches; // first visit: follow the OS
+  }catch(e){}
+}
+
+// Removes duplicate IDs saved before duplicates were blocked. The first copy (earliest
+// time range) is kept; if it had no status but a later copy did, that status is carried over.
+function dedupeLists(){
+  let removed=0;
+  Object.values(S.lists).forEach(li=>{
+    const seen=new Map();
+    li.timeRanges.forEach(tr=>{
+      tr.items=tr.items.filter(item=>{
+        const key=normId(item.id);
+        const first=seen.get(key);
+        if(!first){ seen.set(key,item); return true; }
+        if(!first.status&&item.status) first.status=item.status;
+        removed++;
+        return false;
+      });
+    });
+  });
+  return removed;
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 load();
+const _dedup=dedupeLists();
+if(_dedup) save();
 document.body.classList.toggle('dark', S.dark);
-// default date inputs to today
 const _today = new Date();
 document.getElementById('nd-day').value   = _today.getDate();
 document.getElementById('nd-month').value = _today.getMonth() + 1;
 document.getElementById('nd-year').value  = _today.getFullYear();
 
-// wire up create button + Enter on year input
 document.getElementById('btn-create-list').addEventListener('click', createList);
-document.getElementById('nd-year').addEventListener('keydown', e => { if(e.key==='Enter') createList(); });
+['nd-day','nd-month','nd-year'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('keydown', e => { if(e.key==='Enter') createList(); });
+  el.addEventListener('input', () => el.classList.remove('bad'));
+});
+document.getElementById('toast-undo').addEventListener('click', ()=>{
+  if(undoFn) undoFn();
+  hideToast();
+});
 
 applyLang();
 renderSidebar();
 if(S.active && S.lists[S.active]) openList(S.active);
 else showNoList();
+if(_dedup) toast(t('dedup',{n:_dedup}));
 
 // ── SIDEBAR TOGGLE ────────────────────────────────────────────────────────────
 function toggleSidebar(){
@@ -260,10 +374,8 @@ function toggleSidebar(){
 }
 function closeSidebarMobile(){
   if(window.innerWidth>580) return;
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sb-overlay');
-  sb.classList.remove('open');
-  ov.classList.remove('open');
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('open');
 }
 
 // ── DARK / LANG ───────────────────────────────────────────────────────────────
@@ -290,30 +402,37 @@ function applyLang(){
 }
 
 // ── SIDEBAR ───────────────────────────────────────────────────────────────────
+// newest date first
+function sortedListIds(){
+  return Object.keys(S.lists).sort((a,b)=>S.lists[b].date.localeCompare(S.lists[a].date));
+}
+
 function renderSidebar(){
   document.getElementById('lbl-lists').textContent=t('lists');
   const c=document.getElementById('sb-list');
-  const keys=Object.keys(S.lists);
+  const keys=sortedListIds();
   if(!keys.length){ c.innerHTML='<div class="empty-msg" style="padding:14px 8px">—</div>'; return; }
   c.innerHTML=keys.map(id=>{
     const li=S.lists[id];
-    const label=formatDate(li.date);
-    const active=id===S.active;
-    return `<div class="sb-item${active?' active':''}" onclick="openList('${id}')">
-      <span class="sb-name">📅 ${label}</span>
+    const n=li.timeRanges.reduce((s,tr)=>s+tr.items.length,0);
+    return `<div class="sb-item${id===S.active?' active':''}" onclick="openList('${id}')">
+      <span class="sb-name">${formatDate(li.date)}<small>${weekday(li.date,'short')}</small></span>
+      <span class="sb-count">${n}</span>
       <button class="sb-del" onclick="deleteList(event,'${id}')" title="${t('deleteList')}">✕</button>
     </div>`;
   }).join('');
 }
 
 function createList(){
-  const day=parseInt(document.getElementById('nd-day').value);
-  const month=parseInt(document.getElementById('nd-month').value);
-  const year=parseInt(document.getElementById('nd-year').value);
-  if(!day||!month||!year||year<2000) return;
+  const fields=['nd-day','nd-month','nd-year'].map(id=>document.getElementById(id));
+  const [day,month,year]=fields.map(f=>parseInt(f.value));
+  // round-trip through Date to reject things like 31/02
+  const dt=new Date(year,month-1,day);
+  if(!day||!month||!year||year<2000||year>2099||dt.getDate()!==day||dt.getMonth()!==month-1){
+    fields.forEach(f=>{ f.classList.remove('bad'); void f.offsetWidth; f.classList.add('bad'); });
+    return;
+  }
   const dateVal=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-  if(!dateVal) return;
-  // check for duplicate date
   const existing=Object.keys(S.lists).find(id=>S.lists[id].date===dateVal);
   if(existing){ openList(existing); return; }
   const id='lst_'+Date.now();
@@ -321,19 +440,14 @@ function createList(){
     date:dateVal,
     timeRanges:[{ id:'tr_'+Date.now(), start:'', end:'', items:[] }]
   };
-  S.active=id;
-  save();
-  renderSidebar();
   openList(id);
 }
 
 function deleteList(e,id){
   e.stopPropagation();
-  const label=formatDate(S.lists[id].date);
-  if(!confirm(S.lang==='he'?`למחוק את הרשימה "${label}"?`:`Delete list for "${label}"?`)) return;
+  if(!confirm(t('confirmDel',{d:formatDate(S.lists[id].date)}))) return;
   delete S.lists[id];
-  const rem=Object.keys(S.lists);
-  S.active=rem.length?rem[rem.length-1]:null;
+  if(S.active===id) S.active=sortedListIds()[0]||null;
   save();
   renderSidebar();
   if(S.active) openList(S.active); else showNoList();
@@ -354,128 +468,301 @@ function openList(id){
   const li=S.lists[id];
   document.getElementById('no-list-msg').style.display='none';
   document.getElementById('list-editor').style.display='';
-  document.getElementById('list-date-display').textContent='📅 '+formatDate(li.date);
+  document.getElementById('list-date-display').textContent=formatDate(li.date);
+  document.getElementById('list-weekday').textContent=weekday(li.date,'long');
   document.getElementById('btn-add-tr').textContent=t('addTr');
   document.getElementById('btn-export').textContent=t('export');
   document.getElementById('btn-copy').textContent=t('copy');
-  document.getElementById('export-out').style.display='none';
+  hideExport();
   renderTimeRanges();
+  // jump straight into typing on desktop; skip on touch so the keyboard doesn't pop up
+  if(window.matchMedia('(hover:hover)').matches){
+    const first=document.getElementById('addinp_0');
+    if(first) first.focus();
+  }
 }
 
+function counts(items){
+  const c={ total:items.length, ready:0, working:0, lost:0, none:0 };
+  items.forEach(x=>{ c[x.status||'none']++; });
+  return c;
+}
+
+function renderDayStats(){
+  const all=S.lists[S.active].timeRanges.flatMap(tr=>tr.items);
+  const c=counts(all);
+  document.getElementById('day-stats').innerHTML=c.total?`
+    <span class="chip">${t('all')}: ${c.total}</span>
+    ${STATUSES.map(s=>`<span class="chip c-${s.key}">${s.ico} ${c[s.key]}</span>`).join('')}`:'';
+}
+
+// Full rebuild: used when time ranges are added/removed. Edits inside a range use
+// updateRange() so the ID input keeps focus (and the phone keyboard stays open).
 function renderTimeRanges(){
   const li=S.lists[S.active];
-  const c=document.getElementById('tr-container');
-  c.innerHTML=li.timeRanges.map((tr,ti)=>buildTrHtml(tr,ti)).join('');
-  // wire up events
-  li.timeRanges.forEach((tr,ti)=>{
-    // time inputs
-    const startEl=document.getElementById(`start_${ti}`);
-    const endEl=document.getElementById(`end_${ti}`);
-    if(startEl) startEl.addEventListener('input',()=>{ li.timeRanges[ti].start=startEl.value; save(); });
-    if(endEl) endEl.addEventListener('input',()=>{ li.timeRanges[ti].end=endEl.value; save(); });
-    // add-id input
-    const addInp=document.getElementById(`addinp_${ti}`);
-    if(addInp) addInp.addEventListener('keydown',e=>{ if(e.key==='Enter') addId(ti); });
-  });
+  document.getElementById('tr-container').innerHTML=li.timeRanges.map((tr,ti)=>buildTrHtml(tr,ti)).join('');
+  li.timeRanges.forEach((tr,ti)=>updateRange(ti,true));
+  renderDayStats();
+}
+
+function updateRange(ti,skipSummary){
+  const tr=S.lists[S.active].timeRanges[ti];
+  document.getElementById(`dyn_${ti}`).innerHTML=buildItemsHtml(tr,ti);
+  if(!skipSummary){ renderDayStats(); renderSidebar(); }
 }
 
 function buildTrHtml(tr,ti){
-  const items=tr.items;
-  const total=items.length;
-  const ready=items.filter(x=>x.status==='ready').length;
-  const working=items.filter(x=>x.status==='working').length;
-  const lost=items.filter(x=>x.status==='lost').length;
-
-  const statsHtml=total?`<div class="stats">
-    <span class="chip">${t('total')}: ${total}</span>
-    <span class="chip" style="background:var(--ready-bg);color:var(--ready-c);border-color:var(--ready-b)">${t('statReady')}: ${ready}</span>
-    <span class="chip" style="background:var(--work-bg);color:var(--work-c);border-color:var(--work-b)">${t('statWorking')}: ${working}</span>
-    <span class="chip" style="background:var(--lost-bg);color:var(--lost-c);border-color:var(--lost-b)">${t('statLost')}: ${lost}</span>
-  </div>`:'';
-
-  const sortedItems=items.map((item,ii)=>({item,ii})).sort((a,b)=>{
-    const na=Number(a.item.id),nb=Number(b.item.id);
-    if(!isNaN(na)&&!isNaN(nb)) return na-nb;
-    return String(a.item.id).localeCompare(String(b.item.id));
-  });
-  const itemsHtml=sortedItems.length
-    ? sortedItems.map(({item,ii})=>`
-      <div class="id-item">
-        <span class="id-name">${escHtml(item.id)}</span>
-        <div class="status-btns">
-          <button class="sbtn${item.status==='ready'?' sr':''}" onclick="setStatus(${ti},${ii},'ready')">${t('ready')}</button>
-          <button class="sbtn${item.status==='working'?' sw':''}" onclick="setStatus(${ti},${ii},'working')">${t('working')}</button>
-          <button class="sbtn${item.status==='lost'?' sl':''}" onclick="setStatus(${ti},${ii},'lost')">${t('lost')}</button>
-        </div>
-        <button class="id-del" onclick="removeId(${ti},${ii})">✕</button>
-      </div>`).join('')
-    : `<div class="empty-msg">${t('empty')}</div>`;
-
   return `<div class="tr-section">
     <div class="tr-header">
       <span class="tr-label">${t('from')}</span>
-      <input type="time" class="tr-time" id="start_${ti}" value="${tr.start||''}" />
-      <span class="tr-sep">→</span>
+      <input type="time" class="tr-time" value="${tr.start||''}" oninput="setTime(${ti},'start',this.value)" />
+      <span class="tr-sep">${S.lang==='he'?'←':'→'}</span>
       <span class="tr-label">${t('to')}</span>
-      <input type="time" class="tr-time" id="end_${ti}" value="${tr.end||''}" />
+      <input type="time" class="tr-time" value="${tr.end||''}" oninput="setTime(${ti},'end',this.value)" />
       <button class="tr-del" onclick="deleteTimeRange(${ti})" title="${t('deleteTr')}">🗑</button>
     </div>
     <div class="tr-body">
       <div class="add-row">
-        <input type="text" id="addinp_${ti}" placeholder="${t('idPlaceholder')}" />
+        <input type="text" class="id-input" id="addinp_${ti}" inputmode="numeric" autocomplete="off"
+          placeholder="000" oninput="onIdInput(${ti})" onpaste="onIdPaste(${ti},event)"
+          onkeydown="if(event.key==='Enter')addId(${ti})" />
         <button class="btn-add" onclick="addId(${ti})">${t('addId')}</button>
       </div>
-      ${statsHtml}
-      <div class="id-list">${itemsHtml}</div>
+      <div class="hint" id="hint_${ti}">${t('hint')}</div>
+      <div id="dyn_${ti}"></div>
     </div>
   </div>`;
 }
 
+function buildItemsHtml(tr,ti){
+  const items=tr.items;
+  if(!items.length) return `<div class="empty-msg">${t('empty')}</div>`;
+  const c=counts(items);
+  const f=F[tr.id]||'all';
+
+  const chip=(key,label,cls)=>`<button class="chip ${cls}${f===key?' on':''}" ${key!=='all'&&!c[key]?'disabled':''}
+    onclick="setFilter(${ti},'${key}')">${label}: ${key==='all'?c.total:c[key]}</button>`;
+  const filterHtml=`<div class="filter-row">
+    <div class="chips">
+      ${chip('all',t('all'),'')}
+      ${STATUSES.map(s=>chip(s.key,t(s.key),'c-'+s.key)).join('')}
+      ${c.none?chip('none',t('none'),''):''}
+    </div>
+    ${c.none&&c.total>c.none?`<button class="btn-rest" onclick="markRestReady(${ti})">${t('markRest')}</button>`:''}
+  </div>`;
+
+  const shown=items.map((item,ii)=>({item,ii}))
+    .filter(({item})=>f==='all'||(item.status||'none')===f)
+    .sort((a,b)=>{
+      const na=Number(a.item.id),nb=Number(b.item.id);
+      if(!isNaN(na)&&!isNaN(nb)) return na-nb;
+      return String(a.item.id).localeCompare(String(b.item.id));
+    });
+
+  const rows=shown.length ? shown.map(({item,ii})=>`
+    <div class="id-item${item.status?' st-'+item.status:''}" id="item_${ti}_${ii}">
+      <span class="id-name">${escHtml(item.id)}</span>
+      <div class="seg">
+        ${STATUSES.map(s=>`<button class="${item.status===s.key?'on-'+s.key:''}" title="${t(s.key)}"
+          onclick="setStatus(${ti},${ii},'${s.key}')"><span>${s.ico}</span><span class="lbl">${t(s.key)}</span></button>`).join('')}
+      </div>
+      <button class="id-del" onclick="removeId(${ti},${ii})">✕</button>
+    </div>`).join('')
+    : `<div class="empty-msg">${t('emptyFilter')}</div>`;
+
+  return filterHtml+`<div class="id-list">${rows}</div>`;
+}
+
+function setTime(ti,field,val){
+  S.lists[S.active].timeRanges[ti][field]=val;
+  save();
+  hideExport();
+}
+
+function setFilter(ti,f){
+  F[S.lists[S.active].timeRanges[ti].id]=f;
+  updateRange(ti,true);
+}
+
 function addTimeRange(){
-  S.lists[S.active].timeRanges.push({ id:'tr_'+Date.now(), start:'', end:'', items:[] });
+  const trs=S.lists[S.active].timeRanges;
+  // a new range usually starts where the previous one ended
+  const prevEnd=trs.length?trs[trs.length-1].end:'';
+  trs.push({ id:'tr_'+Date.now(), start:prevEnd||'', end:'', items:[] });
   save();
   renderTimeRanges();
-  document.getElementById('export-out').style.display='none';
+  hideExport();
+  const el=document.getElementById(`addinp_${trs.length-1}`);
+  if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); el.focus({preventScroll:true}); }
 }
 
 function deleteTimeRange(ti){
   const li=S.lists[S.active];
-  if(li.timeRanges.length===1){ alert(S.lang==='he'?'חייבת להיות לפחות טווח שעות אחד':'At least one time range is required.'); return; }
+  if(li.timeRanges.length===1){ alert(t('minOneTr')); return; }
+  const restore=snapshot();
   li.timeRanges.splice(ti,1);
   save();
   renderTimeRanges();
-  document.getElementById('export-out').style.display='none';
+  renderSidebar();
+  hideExport();
+  toast(t('trRemoved'),restore);
+}
+
+// ── ADDING IDS ────────────────────────────────────────────────────────────────
+function normId(v){ return String(v).trim().toLowerCase(); }
+
+function findDuplicate(val){
+  const key=normId(val);
+  const trs=S.lists[S.active].timeRanges;
+  for(let ti=0;ti<trs.length;ti++){
+    const ii=trs[ti].items.findIndex(x=>normId(x.id)===key);
+    if(ii!==-1) return { ti, ii };
+  }
+  return null;
+}
+
+// Validates and stores one ID without re-rendering. Returns 'ok', 'bad' or a duplicate {ti,ii}.
+function tryAdd(ti,val){
+  if(!ID_RE.test(val)) return 'bad';
+  const dup=findDuplicate(val);
+  if(dup) return dup;
+  S.lists[S.active].timeRanges[ti].items.push({ id:val, status:null });
+  return 'ok';
+}
+
+// Digits only; the 3rd digit adds the ID automatically so you can type IDs back to back.
+function onIdInput(ti){
+  const inp=document.getElementById(`addinp_${ti}`);
+  const digits=inp.value.replace(/\D/g,'');
+  if(inp.value!==digits) inp.value=digits;
+  clearErr(ti);
+  if(digits.length===3) addId(ti);
+  else if(digits.length>3) showErr(ti,t('badLen'));
+}
+
+// Pasting several IDs at once ("101 102, 103\n104") adds them all in one go.
+function onIdPaste(ti,e){
+  const text=(e.clipboardData||window.clipboardData).getData('text');
+  const tokens=text.split(/\D+/).filter(Boolean);
+  if(tokens.length<2) return; // a single value goes through the normal input path
+  e.preventDefault();
+  let added=0;
+  tokens.forEach(tok=>{ if(tryAdd(ti,tok)==='ok') added++; });
+  const skipped=tokens.length-added;
+  F[S.lists[S.active].timeRanges[ti].id]='all';
+  save();
+  updateRange(ti);
+  hideExport();
+  toast(skipped?t('pastedSkip',{n:added,s:skipped}):t('pasted',{n:added}));
 }
 
 function addId(ti){
   const inp=document.getElementById(`addinp_${ti}`);
   const val=inp.value.trim();
   if(!val) return;
-  S.lists[S.active].timeRanges[ti].items.push({ id:val, status:null });
+  const res=tryAdd(ti,val);
+  if(res==='bad'){ showErr(ti,t('badLen')); inp.select(); return; }
+  if(res!=='ok'){ showDup(ti,res,val); return; }
   inp.value='';
+  F[S.lists[S.active].timeRanges[ti].id]='all'; // make sure the new ID is visible
   save();
-  renderTimeRanges();
-  // re-focus
-  const el=document.getElementById(`addinp_${ti}`);
-  if(el) el.focus();
-  document.getElementById('export-out').style.display='none';
+  updateRange(ti);
+  inp.focus();
+  hideExport();
 }
 
+function showErr(ti,msg){
+  const hint=document.getElementById(`hint_${ti}`);
+  const inp=document.getElementById(`addinp_${ti}`);
+  hint.textContent=msg;
+  hint.classList.add('err');
+  inp.classList.remove('err'); void inp.offsetWidth; // restart the shake animation
+  inp.classList.add('err');
+}
+
+function clearErr(ti){
+  const hint=document.getElementById(`hint_${ti}`);
+  if(!hint||!hint.classList.contains('err')) return;
+  hint.textContent=t('hint');
+  hint.classList.remove('err');
+  document.getElementById(`addinp_${ti}`).classList.remove('err');
+}
+
+function showDup(ti,dup,val){
+  const trs=S.lists[S.active].timeRanges;
+  const tr=trs[dup.ti];
+  // un-hide the existing entry if a filter is hiding it
+  if((F[tr.id]||'all')!=='all'){ F[tr.id]='all'; updateRange(dup.ti,true); }
+  showErr(ti, dup.ti===ti
+    ? t('dupSame',{id:val})
+    : t('dupOther',{id:val,range:`${tr.start||'--:--'} – ${tr.end||'--:--'}`}));
+  document.getElementById(`addinp_${ti}`).select();
+  const el=document.getElementById(`item_${dup.ti}_${dup.ii}`);
+  if(el){
+    el.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    el.classList.add('flash');
+    setTimeout(()=>el.classList.remove('flash'),1500);
+  }
+}
+
+// ── STATUS / REMOVE ───────────────────────────────────────────────────────────
 function setStatus(ti,ii,status){
   const item=S.lists[S.active].timeRanges[ti].items[ii];
   item.status=item.status===status?null:status;
   save();
-  renderTimeRanges();
+  updateRange(ti);
+  hideExport();
+}
+
+function markRestReady(ti){
+  const restore=snapshot();
+  const items=S.lists[S.active].timeRanges[ti].items.filter(x=>!x.status);
+  items.forEach(x=>x.status='ready');
+  save();
+  updateRange(ti);
+  hideExport();
+  toast(t('marked',{n:items.length}),restore);
 }
 
 function removeId(ti,ii){
-  S.lists[S.active].timeRanges[ti].items.splice(ii,1);
+  const restore=snapshot();
+  const [item]=S.lists[S.active].timeRanges[ti].items.splice(ii,1);
   save();
-  renderTimeRanges();
-  document.getElementById('export-out').style.display='none';
+  updateRange(ti);
+  hideExport();
+  toast(t('removed',{id:item.id}),restore);
+}
+
+// Captures the active list so a destructive action can be undone from the toast.
+function snapshot(){
+  const id=S.active, copy=JSON.stringify(S.lists[id]);
+  return ()=>{
+    S.lists[id]=JSON.parse(copy);
+    save();
+    renderSidebar();
+    if(S.active===id){ renderTimeRanges(); hideExport(); }
+  };
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg,undo){
+  undoFn=undo||null;
+  document.getElementById('toast-msg').textContent=msg;
+  const btn=document.getElementById('toast-undo');
+  btn.textContent=t('undo');
+  btn.style.display=undo?'':'none';
+  document.getElementById('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(hideToast,undo?5000:2500);
+}
+function hideToast(){
+  document.getElementById('toast').classList.remove('show');
+  undoFn=null;
 }
 
 // ── EXPORT (always Hebrew) ────────────────────────────────────────────────────
+function hideExport(){ document.getElementById('export-out').style.display='none'; }
+
 function exportMessage(){
   const li=S.lists[S.active];
   const lines=[ formatDate(li.date) ];
@@ -490,10 +777,13 @@ function exportMessage(){
     if(i>0) lines.push('');
     const from=tr.start||'--:--';
     const to=tr.end||'--:--';
-    lines.push(`${from} – ${to}`);
+    // Invisible left-to-right marks (U+200E) around the dash keep "08:00 – 12:00" in order
+    // inside right-to-left text; without them it shows as "12:00 – 08:00" here and in chat apps.
+    lines.push(`${from}‎ – ‎${to}`);
 
     groups.forEach(g=>{
-      const ids=tr.items.filter(x=>x.status===g.key).map(x=>x.id);
+      const ids=tr.items.filter(x=>x.status===g.key).map(x=>x.id)
+        .sort((a,b)=>Number(a)-Number(b)||String(a).localeCompare(String(b)));
       if(!ids.length) return;
       lines.push('');
       lines.push(g.label);
@@ -503,18 +793,14 @@ function exportMessage(){
   });
 
   document.getElementById('export-text').value=lines.join('\n');
-  document.getElementById('export-out').style.display='block';
-  document.getElementById('copied-msg').style.display='none';
+  const out=document.getElementById('export-out');
+  out.style.display='block';
+  out.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
 function copyExport(){
   const ta=document.getElementById('export-text');
-  navigator.clipboard.writeText(ta.value).then(()=>{
-    const m=document.getElementById('copied-msg');
-    m.textContent=t('copied');
-    m.style.display='block';
-    setTimeout(()=>m.style.display='none',2000);
-  });
+  navigator.clipboard.writeText(ta.value).then(()=>toast(t('copied')));
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -522,6 +808,10 @@ function formatDate(str){
   if(!str) return '—';
   const [y,m,d]=str.split('-');
   return `${d}/${m}/${y}`;
+}
+function weekday(str,style){
+  const [y,m,d]=str.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString(S.lang==='he'?'he-IL':'en-GB',{weekday:style});
 }
 function escHtml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
