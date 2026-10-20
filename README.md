@@ -4,6 +4,7 @@ A Hebrew/English app for tracking file transfers by date and time range.
 
 ## Features
 - Create lists per date, each with multiple time ranges
+- Sort the date list by the list's date or by when it was added (grouped by day), newest or oldest first
 - Add 3-digit file IDs and track status: Ready / Working / Lost
   - Typing the 3rd digit adds the ID automatically; paste a whole list at once
   - Duplicate IDs are blocked across all time ranges of a date
