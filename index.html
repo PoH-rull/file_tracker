@@ -51,6 +51,13 @@
   /* SIDEBAR */
   .sidebar{width:230px;background:var(--surface);border-inline-end:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
   .sb-head{padding:14px 12px 8px;font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+  .sb-sort{display:flex;gap:4px;padding:8px 10px 6px;align-items:center}
+  .sb-sort .seg{margin:0;flex:1}
+  .sb-sort .seg button{flex:1;justify-content:center;padding:5px 6px;font-size:.74rem}
+  .sb-sort .seg button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .sb-dir{background:var(--surface);border:1.5px solid var(--border);border-radius:9px;color:var(--text2);cursor:pointer;padding:4px 8px;font-size:.85rem}
+  .sb-dir:hover{background:var(--surface2)}
+  .sb-group{font-size:.7rem;color:var(--text3);padding:10px 10px 4px;text-transform:uppercase;letter-spacing:.05em}
   .sb-new{padding:0 10px 10px;display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--border);margin-bottom:8px}
   .dfields{display:flex;align-items:center;gap:3px;flex:1;direction:ltr}
   .dfield{width:40px;padding:7px 3px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface2);color:var(--text);font-size:15px;outline:none;text-align:center;-moz-appearance:textfield}
@@ -207,6 +214,13 @@
       </div>
       <button class="sb-add" id="btn-create-list" title="Create list">＋</button>
     </div>
+    <div class="sb-sort">
+      <div class="seg">
+        <button id="sort-date" onclick="setSort('date')"></button>
+        <button id="sort-added" onclick="setSort('added')"></button>
+      </div>
+      <button class="sb-dir" id="sort-dir" onclick="toggleSortDir()"></button>
+    </div>
     <div class="sb-list" id="sb-list"></div>
   </div>
 
@@ -251,6 +265,7 @@ let S = {
   lang: 'en',
   dark: false,
   active: null,
+  sort: { by:'date', dir:'desc' },   // sidebar order: by list date or by when the list was added
   lists: {}
   // lists[id] = { date:"YYYY-MM-DD", timeRanges:[{id,start,end,items:[{id,status}]}] }
 };
@@ -282,6 +297,8 @@ const L = {
     dedup:'Cleaned up {n} duplicate IDs',
     minOneTr:'At least one time range is required.',
     confirmDel:'Delete list for "{d}"?',
+    sortDate:'📅 Date',sortAdded:'🕒 Added',newestFirst:'Newest first',oldestFirst:'Oldest first',
+    addedToday:'Added today',addedYesterday:'Added yesterday',addedOn:'Added {d}',
   },
   he:{
     appTitle:'מעקב קבצים',lists:'רשימות',noList:'בחר תאריך ולחץ + ליצירת רשימה',
@@ -299,6 +316,8 @@ const L = {
     dedup:'נוקו {n} מזהים כפולים',
     minOneTr:'חייבת להיות לפחות טווח שעות אחד',
     confirmDel:'למחוק את הרשימה "{d}"?',
+    sortDate:'📅 תאריך',sortAdded:'🕒 נוספו',newestFirst:'החדש ביותר קודם',oldestFirst:'הישן ביותר קודם',
+    addedToday:'נוספו היום',addedYesterday:'נוספו אתמול',addedOn:'נוספו בתאריך {d}',
   }
 };
 // t('key', {var:value}) fills {var} placeholders
@@ -340,6 +359,7 @@ function dedupeLists(){
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 load();
+if(!S.sort) S.sort={ by:'date', dir:'desc' };
 const _dedup=dedupeLists();
 if(_dedup) save();
 document.body.classList.toggle('dark', S.dark);
@@ -402,20 +422,53 @@ function applyLang(){
 }
 
 // ── SIDEBAR ───────────────────────────────────────────────────────────────────
-// newest date first
+// When the list was added. List ids are 'lst_<ms timestamp>', so older lists without
+// createdAt still sort correctly.
+function createdAt(id){
+  return S.lists[id].createdAt||Number(id.slice(4))||0;
+}
+
 function sortedListIds(){
-  return Object.keys(S.lists).sort((a,b)=>S.lists[b].date.localeCompare(S.lists[a].date));
+  const sign=S.sort.dir==='asc'?1:-1;
+  return Object.keys(S.lists).sort((a,b)=>S.sort.by==='added'
+    ? sign*(createdAt(a)-createdAt(b))
+    : sign*S.lists[a].date.localeCompare(S.lists[b].date));
+}
+
+function setSort(by){ S.sort.by=by; save(); renderSidebar(); }
+function toggleSortDir(){ S.sort.dir=S.sort.dir==='asc'?'desc':'asc'; save(); renderSidebar(); }
+
+// Group label for "added" mode: lists added on the same day sit together under one heading
+function addedLabel(ms){
+  const d=new Date(ms), day=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const diff=Math.round((today-day)/86400000);
+  if(diff===0) return t('addedToday');
+  if(diff===1) return t('addedYesterday');
+  const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return t('addedOn',{d:formatDate(iso)});
 }
 
 function renderSidebar(){
   document.getElementById('lbl-lists').textContent=t('lists');
+  const sd=document.getElementById('sort-date'), sa=document.getElementById('sort-added'), dir=document.getElementById('sort-dir');
+  sd.textContent=t('sortDate'); sa.textContent=t('sortAdded');
+  sd.classList.toggle('on',S.sort.by==='date'); sa.classList.toggle('on',S.sort.by==='added');
+  dir.textContent=S.sort.dir==='asc'?'↑':'↓';
+  dir.title=t(S.sort.dir==='asc'?'oldestFirst':'newestFirst');
   const c=document.getElementById('sb-list');
   const keys=sortedListIds();
   if(!keys.length){ c.innerHTML='<div class="empty-msg" style="padding:14px 8px">—</div>'; return; }
+  let lastGroup=null;
   c.innerHTML=keys.map(id=>{
     const li=S.lists[id];
     const n=li.timeRanges.reduce((s,tr)=>s+tr.items.length,0);
-    return `<div class="sb-item${id===S.active?' active':''}" onclick="openList('${id}')">
+    let head='';
+    if(S.sort.by==='added'){
+      const g=addedLabel(createdAt(id));
+      if(g!==lastGroup){ head=`<div class="sb-group">${g}</div>`; lastGroup=g; }
+    }
+    return head+`<div class="sb-item${id===S.active?' active':''}" onclick="openList('${id}')">
       <span class="sb-name">${formatDate(li.date)}<small>${weekday(li.date,'short')}</small></span>
       <span class="sb-count">${n}</span>
       <button class="sb-del" onclick="deleteList(event,'${id}')" title="${t('deleteList')}">✕</button>
@@ -438,6 +491,7 @@ function createList(){
   const id='lst_'+Date.now();
   S.lists[id]={
     date:dateVal,
+    createdAt:Date.now(),
     timeRanges:[{ id:'tr_'+Date.now(), start:'', end:'', items:[] }]
   };
   openList(id);
